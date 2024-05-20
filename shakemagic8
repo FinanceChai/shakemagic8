@@ -5,6 +5,10 @@ from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from telegram import Update, InputFile
 from telegram.ext import Updater, CommandHandler, MessageHandler, filters, CallbackContext
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Enable logging
 logging.basicConfig(
@@ -86,22 +90,4 @@ def main() -> None:
     # Create the Updater and pass it your bot's token.
     updater = Updater(token)
 
-    # Get the dispatcher to register handlers
-    dispatcher = updater.dispatcher
-
-    # Add command handler for /shake8ball
-    dispatcher.add_handler(CommandHandler("shake8ball", shake8ball))
-
-    # Add message handler for images
-    dispatcher.add_handler(MessageHandler(filters.PHOTO & ~filters.COMMAND, handle_image))
-
-    # Start the Bot
-    updater.start_polling()
-
-    # Run the bot until you press Ctrl-C or the process receives SIGINT, SIGTERM or SIGABRT
-    updater.idle()
-
-if __name__ == '__main__':
-    main()
-
-
+    # Get the dispatcher to register h
