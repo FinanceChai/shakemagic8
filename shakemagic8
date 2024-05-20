@@ -23,7 +23,10 @@ responses = ["Yes", "No", "Maybe"]
 # Function to overlay a vector image
 def overlay_vector_image(base_image: Image, vector_image_path: str) -> Image:
     vector_img = Image.open(vector_image_path).convert("RGBA")
-    base_image.paste(vector_img, (0, 0), vector_img)
+    # Calculate position to center the vector image
+    x = (base_image.width - vector_img.width) // 2
+    y = (base_image.height - vector_img.height) // 2
+    base_image.paste(vector_img, (x, y), vector_img)
     return base_image
 
 # Function to generate the response image
@@ -40,9 +43,8 @@ def generate_response_image(user_image: BytesIO, vector_image_path: str) -> Byte
     # Choose a random response
     response = random.choice(responses)
 
-    # Load a font with size 36
-    font_size = 500
-    font = ImageFont.truetype("arial.ttf", font_size)
+    # Load a font with size 48 for better visibility
+    font = ImageFont.truetype("arial.ttf", 48)
 
     # Calculate text size
     text_width, text_height = draw.textsize(response, font=font)
