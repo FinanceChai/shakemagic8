@@ -37,8 +37,14 @@ def overlay_vector_image(base_image: Image, vector_image_path: str) -> Image:
 def generate_response_image(user_image: BytesIO, vector_image_path: str) -> BytesIO:
     user_img = Image.open(user_image).convert("RGBA")
     user_img = overlay_vector_image(user_img, vector_image_path)
-    draw = ImageDraw.Draw(user_img)
     response = random.choice(responses)
+    
+    # Create a new image for text with extra space
+    new_height = user_img.height + 100  # 100 pixels for text
+    new_img = Image.new('RGBA', (user_img.width, new_height))
+    new_img.paste(user_img, (0, 0))
+
+    draw = ImageDraw.Draw(new_img)
     
     # Load font or use default
     try:
@@ -48,7 +54,7 @@ def generate_response_image(user_image: BytesIO, vector_image_path: str) -> Byte
         font = ImageFont.load_default()
 
     # Define text position and draw background
-    text_x, text_y = 10, 10
+    text_x, text_y = 10, user_img.height + 10
     text_width, text_height = draw.textsize(response, font=font)
     text_background_color = (0, 0, 0, 127)  # Semi-transparent black
     draw.rectangle([(text_x, text_y), (text_x + text_width + 20, text_y + text_height + 10)],
@@ -59,7 +65,7 @@ def generate_response_image(user_image: BytesIO, vector_image_path: str) -> Byte
 
     # Save the image to a BytesIO object
     output_image = BytesIO()
-    user_img.save(output_image, format='PNG')
+    new_img.save(output_image, format='PNG')
     output_image.seek(0)
     return output_image
 
