@@ -1,0 +1,86 @@
+import logging
+import random
+from io import BytesIO
+from PIL import Image, ImageDraw, ImageFont
+from telegram import Update, InputFile
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+
+# Enable logging
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
+logger = logging.getLogger(__name__)
+
+# Define the responses
+responses = ["Yes", "No", "Maybe"]
+
+# Function to generate the response image
+def generate_response_image(user_image: BytesIO) -> BytesIO:
+    # Load the user image
+    user_img = Image.open(user_image)
+
+    # Create a draw object
+    draw = ImageDraw.Draw(user_img)
+
+    # Choose a random response
+    response = random.choice(responses)
+
+    # Load a font
+    font = ImageFont.load_default()
+
+    # Add the response text to the image
+    text_position = (10, user_img.height - 20)  # Bottom left corner
+    draw.text(text_position, response, font=font, fill="white")
+
+    # Save the modified image to a BytesIO object
+    output_image = BytesIO()
+    user_img.save(output_image, format='PNG')
+    output_image.seek(0)
+
+    return output_image
+
+# Command handler for /shake8ball
+def shake8ball(update: Update, context: CallbackContext) -> None:
+    user = update.message.from_user
+    logger.info("User %s initiated /shake8ball", user.first_name)
+    
+    # Send a message to ask for a yes/no question
+    update.message.reply_text('Please send me a yes/no question followed by an image.')
+
+# Message handler for images
+def handle_image(update: Update, context: CallbackContext) -> None:
+    user = update.message.from_user
+    logger.info("User %s sent an image", user.first_name)
+    
+    # Get the image file
+    photo = update.message.photo[-1].get_file()
+    photo_file = BytesIO(photo.download_as_bytearray())
+
+    # Generate the response image
+    response_image = generate_response_image(photo_file)
+
+    # Send the response image back to the user
+    update.message.reply_photo(photo=InputFile(response_image, filename="response.png"))
+
+def main() -> None:
+    # Create the Updater and pass it your bot's token.
+    updater = Updater("YOUR_TELEGRAM_BOT_TOKEN")
+
+    # Get the dispatcher to register handlers
+    dispatcher = updater.dispatcher
+
+    # Add command handler for /shake8ball
+    dispatcher.add_handler(CommandHandler("shake8ball", shake8ball))
+
+    # Add message handler for images
+    dispatcher.add_handler(MessageHandler(Filters.photo & ~Filters.command, handle_image))
+
+    # Start the Bot
+    updater.start_polling()
+
+    # Run the bot until you press Ctrl-C or the process receives SIGINT, SIGTERM or SIGABRT
+    updater.idle()
+
+if __name__ == '__main__':
+    main()
