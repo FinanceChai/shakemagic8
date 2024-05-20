@@ -40,8 +40,9 @@ def generate_response_image(user_image: BytesIO, vector_image_path: str) -> Byte
     # Choose a random response
     response = random.choice(responses)
 
-    # Load a font with size 24
-    font = ImageFont.truetype("arial.ttf", 24)
+    # Load a font with size 36
+    font_size = 36
+    font = ImageFont.truetype("arial.ttf", font_size)
 
     # Calculate text size
     text_width, text_height = draw.textsize(response, font=font)
