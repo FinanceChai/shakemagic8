@@ -2,7 +2,7 @@ import logging
 import random
 import os
 from io import BytesIO
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
 from telegram import Update, InputFile
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, CallbackContext
 from dotenv import load_dotenv
@@ -24,7 +24,7 @@ responses = ["Yes", "No", "Maybe"]
 def overlay_vector_image(base_image: Image, vector_image_path: str) -> Image:
     vector_img = Image.open(vector_image_path).convert("RGBA")
     # Resize the vector image to 1/200 of the smaller side of the base image
-    factor = min(base_image.width, base_image.height) // 200
+    factor = min(base_image.width, base_image.height) // 10  # Adjust the divisor for size
     vector_img = vector_img.resize((factor, factor), Image.ANTIALIAS)
     
     # Place the vector image around the border of the base image
@@ -58,7 +58,7 @@ async def handle_image(update: Update, context: CallbackContext) -> None:
     logger.info("User %s sent an image", user.first_name)
     photo = await update.message.photo[-1].get_file()
     photo_file = BytesIO(await photo.download_as_bytearray())
-    vector_image_path = "overlay.png"  # Ensure this path is correct
+    vector_image_path = "path_to_your_8ball_image.png"  # Ensure this path is correct
     response_image = generate_response_image(photo_file, vector_image_path)
     await update.message.reply_photo(photo=InputFile(response_image, filename="response.png"))
 
