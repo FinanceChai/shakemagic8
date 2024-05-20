@@ -34,7 +34,7 @@ def generate_response_image(user_image: BytesIO, vector_image_path: str) -> Byte
     user_img = overlay_vector_image(user_img, vector_image_path)
     draw = ImageDraw.Draw(user_img)
     response = random.choice(responses)
-    font = ImageFont.truetype("arial.ttf", 72)  # Larger font size
+    font = ImageFont.truetype("arial.ttf", 500)  # Larger font size
 
     text_width, text_height = draw.textsize(response, font=font)
     text_x = (user_img.width - text_width) // 2
