@@ -22,34 +22,33 @@ responses = ["Yes", "No", "Maybe"]
 
 # Function to overlay a vector image
 def overlay_vector_image(base_image: Image, vector_image_path: str) -> Image:
+    # Open the vector image and ensure it is in RGBA mode for transparency handling
     vector_img = Image.open(vector_image_path).convert("RGBA")
+    # Get the dimensions of the base image
     x_center = (base_image.width - vector_img.width) // 2
     y_center = (base_image.height - vector_img.height) // 2
+    # Paste the vector image onto the base image at the calculated position
     base_image.paste(vector_img, (x_center, y_center), vector_img)
     return base_image
 
 # Function to generate the response image
 def generate_response_image(user_image: BytesIO, vector_image_path: str) -> BytesIO:
+    # Load the user image and convert it to RGBA for consistency
     user_img = Image.open(user_image).convert("RGBA")
+    # Overlay the vector image
     user_img = overlay_vector_image(user_img, vector_image_path)
+    # Create a draw object to add text
     draw = ImageDraw.Draw(user_img)
+    # Choose a random response
     response = random.choice(responses)
-    font = ImageFont.truetype("arial.ttf", 100)  # Font size for visibility
-
-    # Define text position and draw a semi-transparent background
-    text_x, text_y = 2, 2  # Margin from the top left corner
+    # Load a font with a large size for better visibility
+    font = ImageFont.truetype("arial.ttf", 48)
+    # Calculate text size and position
     text_width, text_height = draw.textsize(response, font=font)
-    text_background_color = (0, 0, 0, 127)  # Semi-transparent black
-
-    # Drawing text background
-    draw.rectangle([(text_x, text_y), (text_x + text_width + 20, text_y + text_height + 10)], 
-                   fill=text_background_color)
-
-    # Drawing text
-    text_color = "white"  # Text color
-    draw.text((text_x, text_y), response, font=font, fill=text_color)
-
-    # Save the image
+    text_position = ((user_img.width - text_width) // 2, (user_img.height - text_height) // 2)
+    # Add the response text to the image
+    draw.text(text_position, response, font=font, fill="white")
+    # Save the modified image to a BytesIO object
     output_image = BytesIO()
     user_img.save(output_image, format='PNG')
     output_image.seek(0)
