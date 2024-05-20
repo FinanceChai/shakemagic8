@@ -4,7 +4,7 @@ import os
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from telegram import Update, InputFile
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from telegram.ext import Updater, CommandHandler, MessageHandler, filters, CallbackContext
 
 # Enable logging
 logging.basicConfig(
@@ -93,7 +93,7 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler("shake8ball", shake8ball))
 
     # Add message handler for images
-    dispatcher.add_handler(MessageHandler(Filters.photo & ~Filters.command, handle_image))
+    dispatcher.add_handler(MessageHandler(filters.PHOTO & ~filters.COMMAND, handle_image))
 
     # Start the Bot
     updater.start_polling()
