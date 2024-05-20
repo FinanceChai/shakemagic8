@@ -22,12 +22,9 @@ responses = ["Yes", "No", "Maybe"]
 
 # Function to overlay a vector image
 def overlay_vector_image(base_image: Image, vector_image_path: str) -> Image:
-    # Open the vector image and ensure it is in RGBA mode for transparency handling
     vector_img = Image.open(vector_image_path).convert("RGBA")
-    # Calculate the position to center the vector image
     x_center = (base_image.width - vector_img.width) // 2
     y_center = (base_image.height - vector_img.height) // 2
-    # Paste the vector image onto the base image at the calculated position
     base_image.paste(vector_img, (x_center, y_center), vector_img)
     return base_image
 
@@ -36,21 +33,23 @@ def generate_response_image(user_image: BytesIO, vector_image_path: str) -> Byte
     user_img = overlay_vector_image(user_img, vector_image_path)
     draw = ImageDraw.Draw(user_img)
     response = random.choice(responses)
-    font = ImageFont.truetype("arial.ttf", 100)  # Ensure this font size is visible
 
-    # Define text position at the top left corner
-    text_x, text_y = 10, 10  # Slightly down and to the right from the very top left corner
+    # Load font or use default
+    try:
+        font = ImageFont.truetype("arial.ttf", 100)  # Adjusted font size for visibility
+    except IOError:
+        logging.error("Arial font not found, using default font.")
+        font = ImageFont.load_default()
 
-    # Calculate text size for background
+    # Define text position and draw background
+    text_x, text_y = 10, 10
     text_width, text_height = draw.textsize(response, font=font)
     text_background_color = (0, 0, 0, 127)  # Semi-transparent black
-
-    # Draw the semi-transparent rectangle background
     draw.rectangle([(text_x, text_y), (text_x + text_width + 20, text_y + text_height + 10)],
                    fill=text_background_color)
 
-    # Draw the text over the rectangle
-    draw.text((text_x + 10, text_y + 5), response, font=font, fill="white")  # Adjust text position for padding
+    # Draw the text
+    draw.text((text_x + 10, text_y + 5), response, font=font, fill="white")
 
     # Save the image to a BytesIO object
     output_image = BytesIO()
@@ -58,7 +57,6 @@ def generate_response_image(user_image: BytesIO, vector_image_path: str) -> Byte
     output_image.seek(0)
 
     return output_image
-
 
 # Command handler for /shake8ball
 async def shake8ball(update: Update, context: CallbackContext) -> None:
@@ -71,7 +69,7 @@ async def handle_image(update: Update, context: CallbackContext) -> None:
     user = update.message.from_user
     logger.info("User %s sent an image", user.first_name)
     photo = await update.message.photo[-1].get_file()
-    photo_file = BytesIO(await photo.download_as bytearray())
+    photo_file = BytesIO(await photo.download_as_bytearray())
     vector_image_path = "overlay.png"  # Ensure this path is correct
     response_image = generate_response_image(photo_file, vector_image_path)
     await update.message.reply_photo(photo=InputFile(response_image, filename="response.png"))
