@@ -24,15 +24,16 @@ responses = ["Yes", "No", "Maybe"]
 def overlay_vector_image(base_image: Image, vector_image_path: str) -> Image:
     vector_img = Image.open(vector_image_path).convert("RGBA")
     # Resize the vector image to 1/200 of the smaller side of the base image
-    vector_img = vector_img.resize((25,  25), Image.ANTIALIAS)
+    factor = min(base_image.width, base_image.height) // 200
+    vector_img = vector_img.resize((factor, factor), Image.ANTIALIAS)
     
     # Place the vector image around the border of the base image
     for y in range(0, base_image.height, factor):
         base_image.paste(vector_img, (0, y), vector_img)  # Left side
-        base_image.paste(vector_img, (base_image.width, y), vector_img)  # Right side
+        base_image.paste(vector_img, (base_image.width - factor, y), vector_img)  # Right side
     for x in range(0, base_image.width, factor):
         base_image.paste(vector_img, (x, 0), vector_img)  # Top side
-        base_image.paste(vector_img, (x, base_image.height), vector_img)  # Bottom side
+        base_image.paste(vector_img, (x, base_image.height - factor), vector_img)  # Bottom side
 
     return base_image
 
