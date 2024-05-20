@@ -47,7 +47,7 @@ def generate_response_image(user_image: BytesIO, vector_image_path: str) -> Byte
 
     # Drawing text
     text_color = "white"  # Text color
-    draw.text((text_x + 10, text_y + 5), response, font=font, fill=text_color)
+    draw.text((text_x, text_y), response, font=font, fill=text_color)
 
     # Save the image
     output_image = BytesIO()
