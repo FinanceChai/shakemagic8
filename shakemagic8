@@ -37,7 +37,7 @@ def generate_response_image(user_image: BytesIO, vector_image_path: str) -> Byte
     font = ImageFont.truetype("arial.ttf", 48)  # Font size for visibility
 
     # Define text position and draw a semi-transparent background
-    text_x, text_y = 20, 20  # Margin from the top left corner
+    text_x, text_y = 2, 2  # Margin from the top left corner
     text_width, text_height = draw.textsize(response, font=font)
     text_background_color = (0, 0, 0, 127)  # Semi-transparent black
 
