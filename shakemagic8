@@ -40,11 +40,16 @@ def generate_response_image(user_image: BytesIO, vector_image_path: str) -> Byte
     # Choose a random response
     response = random.choice(responses)
 
-    # Load a font
-    font = ImageFont.load_default()
+    # Load a font with size 24
+    font = ImageFont.truetype("arial.ttf", 24)
+
+    # Calculate text size
+    text_width, text_height = draw.textsize(response, font=font)
+
+    # Calculate text position to center it on the image
+    text_position = ((user_img.width - text_width) // 2, (user_img.height - text_height) // 2)
 
     # Add the response text to the image
-    text_position = (10, user_img.height - 20)  # Bottom left corner
     draw.text(text_position, response, font=font, fill="white")
 
     # Save the modified image to a BytesIO object
