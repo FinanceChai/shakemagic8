@@ -31,29 +31,34 @@ def overlay_vector_image(base_image: Image, vector_image_path: str) -> Image:
     base_image.paste(vector_img, (x_center, y_center), vector_img)
     return base_image
 
-# Function to generate the response image
 def generate_response_image(user_image: BytesIO, vector_image_path: str) -> BytesIO:
-    # Load the user image and convert it to RGBA for consistency
     user_img = Image.open(user_image).convert("RGBA")
-    # Overlay the vector image
     user_img = overlay_vector_image(user_img, vector_image_path)
-    # Create a draw object to add text
     draw = ImageDraw.Draw(user_img)
-    # Choose a random response
     response = random.choice(responses)
-    # Load a font with a large size for better visibility
-    font = ImageFont.truetype("arial.ttf", 48)
-    # Calculate text size
-    text_width, text_height = draw.textsize(response, font=font)
+    font = ImageFont.truetype("arial.ttf", 100)  # Ensure this font size is visible
+
     # Define text position at the top left corner
-    text_position = (10, 10)  # Padding of 10 pixels from the top left corner
-    # Add the response text to the image
-    draw.text(text_position, response, font=font, fill="white")
-    # Save the modified image to a BytesIO object
+    text_x, text_y = 10, 10  # Slightly down and to the right from the very top left corner
+
+    # Calculate text size for background
+    text_width, text_height = draw.textsize(response, font=font)
+    text_background_color = (0, 0, 0, 127)  # Semi-transparent black
+
+    # Draw the semi-transparent rectangle background
+    draw.rectangle([(text_x, text_y), (text_x + text_width + 20, text_y + text_height + 10)],
+                   fill=text_background_color)
+
+    # Draw the text over the rectangle
+    draw.text((text_x + 10, text_y + 5), response, font=font, fill="white")  # Adjust text position for padding
+
+    # Save the image to a BytesIO object
     output_image = BytesIO()
     user_img.save(output_image, format='PNG')
     output_image.seek(0)
+
     return output_image
+
 
 # Command handler for /shake8ball
 async def shake8ball(update: Update, context: CallbackContext) -> None:
