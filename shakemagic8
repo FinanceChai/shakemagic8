@@ -24,7 +24,7 @@ responses = ["Yes", "No", "Maybe"]
 def overlay_vector_image(base_image: Image, vector_image_path: str) -> Image:
     # Open the vector image and ensure it is in RGBA mode for transparency handling
     vector_img = Image.open(vector_image_path).convert("RGBA")
-    # Get the dimensions of the base image
+    # Calculate the position to center the vector image
     x_center = (base_image.width - vector_img.width) // 2
     y_center = (base_image.height - vector_img.height) // 2
     # Paste the vector image onto the base image at the calculated position
@@ -43,9 +43,10 @@ def generate_response_image(user_image: BytesIO, vector_image_path: str) -> Byte
     response = random.choice(responses)
     # Load a font with a large size for better visibility
     font = ImageFont.truetype("arial.ttf", 48)
-    # Calculate text size and position
+    # Calculate text size
     text_width, text_height = draw.textsize(response, font=font)
-    text_position = ((user_img.width - text_width) // 2, (user_img.height - text_height) // 2)
+    # Define text position at the top left corner
+    text_position = (10, 10)  # Padding of 10 pixels from the top left corner
     # Add the response text to the image
     draw.text(text_position, response, font=font, fill="white")
     # Save the modified image to a BytesIO object
@@ -65,7 +66,7 @@ async def handle_image(update: Update, context: CallbackContext) -> None:
     user = update.message.from_user
     logger.info("User %s sent an image", user.first_name)
     photo = await update.message.photo[-1].get_file()
-    photo_file = BytesIO(await photo.download_as_bytearray())
+    photo_file = BytesIO(await photo.download_as bytearray())
     vector_image_path = "overlay.png"  # Ensure this path is correct
     response_image = generate_response_image(photo_file, vector_image_path)
     await update.message.reply_photo(photo=InputFile(response_image, filename="response.png"))
