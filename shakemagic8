@@ -42,7 +42,7 @@ def generate_response_image(user_image: BytesIO, vector_image_path: str) -> Byte
     # Choose a random response
     response = random.choice(responses)
     # Load a font with a large size for better visibility
-    font = ImageFont.truetype("arial.ttf", 48)
+    font = ImageFont.truetype("arial.ttf", 200)
     # Calculate text size and position
     text_width, text_height = draw.textsize(response, font=font)
     text_position = ((user_img.width - text_width) // 2, (user_img.height - text_height) // 2)
