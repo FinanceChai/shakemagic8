@@ -34,31 +34,53 @@ def generate_response_image(user_image: BytesIO, vector_image_path: str) -> Byte
     user_img = overlay_vector_image(user_img, vector_image_path)
     draw = ImageDraw.Draw(user_img)
     response = random.choice(responses)
-    font = ImageFont.truetype("arial.ttf", 500)  # Larger font size
+    font = ImageFont.truetype("arial.ttf", 48)  # Font size for visibility
 
+    # Define text position and draw a semi-transparent background
+    text_x, text_y = 20, 20  # Margin from the top left corner
     text_width, text_height = draw.textsize(response, font=font)
-    text_x = (user_img.width - text_width) // 2
-    text_y = (user_img.height - text_height) // 2
+    text_background_color = (0, 0, 0, 127)  # Semi-transparent black
 
-    # Draw a semi-transparent rectangle behind the text
-    rectangle_margin = 10
-    draw.rectangle([text_x - rectangle_margin, text_y - rectangle_margin, 
-                    text_x + text_width + rectangle_margin, text_y + text_height + rectangle_margin], 
-                   fill=(0, 0, 0, 127))  # Semi-transparent black
+    # Drawing text background
+    draw.rectangle([(text_x, text_y), (text_x + text_width + 20, text_y + text_height + 10)], 
+                   fill=text_background_color)
 
-    # Add outlined text
-    outline_thickness = 2
-    for dx in range(-outline_thickness, outline_thickness + 1):
-        for dy in range(-outline_thickness, outline_thickness + 1):
-            draw.text((text_x + dx, text_y + dy), response, font=font, fill="black")
-    draw.text((text_x, text_y), response, font=font, fill="white")
+    # Drawing text
+    text_color = "white"  # Text color
+    draw.text((text_x + 10, text_y + 5), response, font=font, fill=text_color)
 
+    # Save the image
     output_image = BytesIO()
     user_img.save(output_image, format='PNG')
     output_image.seek(0)
     return output_image
 
-# Command handler and other parts of the bot remain the same
+# Command handler for /shake8ball
+async def shake8ball(update: Update, context: CallbackContext) -> None:
+    user = update.message.from_user
+    logger.info("User %s initiated /shake8ball", user.first_name)
+    await update.message.reply_text('Please send me a yes/no question followed by an image.')
+
+# Message handler for images
+async def handle_image(update: Update, context: CallbackContext) -> None:
+    user = update.message.from_user
+    logger.info("User %s sent an image", user.first_name)
+    photo = await update.message.photo[-1].get_file()
+    photo_file = BytesIO(await photo.download_as_bytearray())
+    vector_image_path = "overlay.png"  # Ensure this path is correct
+    response_image = generate_response_image(photo_file, vector_image_path)
+    await update.message.reply_photo(photo=InputFile(response_image, filename="response.png"))
+
+def main() -> None:
+    token = os.getenv("TELEGRAM_BOT_TOKEN")
+    if not token:
+        logger.error("TELEGRAM_BOT_TOKEN environment variable not set")
+        return
+    application = Application.builder().token(token).build()
+    application.add_handler(CommandHandler("shake8ball", shake8ball))
+    application.add_handler(MessageHandler(filters.PHOTO & ~filters.COMMAND, handle_image))
+    logger.info("Starting the bot")
+    application.run_polling()
 
 if __name__ == '__main__':
     logger.debug("Starting the bot script")
