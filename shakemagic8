@@ -4,7 +4,7 @@ import os
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from telegram import Update, InputFile
-from telegram.ext import Updater, CommandHandler, MessageHandler, filters, CallbackContext
+from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackContext
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
