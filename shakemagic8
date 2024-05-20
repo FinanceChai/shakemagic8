@@ -1,5 +1,6 @@
 import logging
 import random
+import os
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from telegram import Update, InputFile
@@ -64,8 +65,14 @@ def handle_image(update: Update, context: CallbackContext) -> None:
     update.message.reply_photo(photo=InputFile(response_image, filename="response.png"))
 
 def main() -> None:
+    # Get the bot token from the environment variable
+    token = os.getenv("TELEGRAM_BOT_TOKEN")
+    if not token:
+        logger.error("TELEGRAM_BOT_TOKEN environment variable not set")
+        return
+    
     # Create the Updater and pass it your bot's token.
-    updater = Updater("YOUR_TELEGRAM_BOT_TOKEN")
+    updater = Updater(token)
 
     # Get the dispatcher to register handlers
     dispatcher = updater.dispatcher
