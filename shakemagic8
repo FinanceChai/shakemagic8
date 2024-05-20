@@ -41,7 +41,7 @@ def generate_response_image(user_image: BytesIO, vector_image_path: str) -> Byte
     response = random.choice(responses)
 
     # Load a font with size 36
-    font_size = 36
+    font_size = 500
     font = ImageFont.truetype("arial.ttf", font_size)
 
     # Calculate text size
