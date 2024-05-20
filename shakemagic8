@@ -34,7 +34,7 @@ def generate_response_image(user_image: BytesIO, vector_image_path: str) -> Byte
     user_img = overlay_vector_image(user_img, vector_image_path)
     draw = ImageDraw.Draw(user_img)
     response = random.choice(responses)
-    font = ImageFont.truetype("arial.ttf", 48)  # Font size for visibility
+    font = ImageFont.truetype("arial.ttf", 100)  # Font size for visibility
 
     # Define text position and draw a semi-transparent background
     text_x, text_y = 2, 2  # Margin from the top left corner
